@@ -35,8 +35,6 @@ with open('static/persona/tutor.json') as p:
 with open('static/persona/business.json') as p:
     business = json.load(p)
 
-os.environ["OPENAI_API_KEY"] = "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"
-
 openai.api_key = config['openai_api_key']
 pinecone_api_key = config['pinecone_api_key']
 pinecone_environment = config['pinecone_environment']
