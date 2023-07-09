@@ -1,3 +1,7 @@
+span.bg-primary.text-white.px-3.p-1.rounded-pill {
+    border-radius: 15px !important;
+}
+
 #chat-window {
     height: auto;
     max-height: 1200px;

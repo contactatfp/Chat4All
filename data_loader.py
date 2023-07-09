@@ -39,6 +39,7 @@ openai.api_key = config['openai_api_key']
 pinecone_api_key = config['pinecone_api_key']
 pinecone_environment = config['pinecone_environment']
 
+
 # initialize pinecone
 pinecone.init(
     api_key=pinecone_api_key,  # find at app.pinecone.io
@@ -174,7 +175,7 @@ def split_docs(pages):
 
 
 def embed_new_docs(pages):
-    embeddings = OpenAIEmbeddings(model="ada")
+    embeddings = OpenAIEmbeddings(model="ada",openai_api_key=config['openai_api_key'])
     index_name = "chat-all"
     docs = split_docs(pages)
     docsearch = Pinecone.from_documents(docs, embeddings, index_name=index_name)
@@ -182,7 +183,7 @@ def embed_new_docs(pages):
 
 
 def embedded_docs():
-    embeddings = OpenAIEmbeddings(model="ada")
+    embeddings = OpenAIEmbeddings(model="ada", openai_api_key=config['openai_api_key'])
     index_name = "chat-all"
     docsearch = Pinecone.from_existing_index(index_name, embeddings)
     return docsearch
@@ -237,7 +238,7 @@ def ask_your_model(query, persona_template):
     # retriever = embedded_docs().as_retriever(search_kwargs={"k": 5})
     # qa = RetrievalQA.from_llm(llm=OpenAI(), retriever=retriever)
 
-    qa = ConversationalRetrievalChain.from_llm(ChatOpenAI(temperature=0.5, model="gpt-3.5-turbo-16k"), embedded_docs().as_retriever(), memory=memory)
+    qa = ConversationalRetrievalChain.from_llm(ChatOpenAI(temperature=0.5, model="gpt-3.5-turbo-16k", openai_api_key=config['openai_api_key']), embedded_docs().as_retriever(), memory=memory)
     # result = qa({"question": query, "chat_history": chat_history})
     result = qa(prompt.format(input=query))
 
