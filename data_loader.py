@@ -227,7 +227,7 @@ def ask_your_model(query, persona_template):
     from app import get_persona
     # If persona_template is None, default to 'business'
     if persona_template is None:
-        persona_template = get_persona('business')
+        persona_template = get_persona('sales_coach_inbound')
 
     prompt = PromptTemplate(
         input_variables=['input'],
