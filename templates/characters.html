@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>NPCs</h1>
+        <div class="row">
+            {% for npc in npcs %}
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <img src="{{ url_for('static', filename=temp[npc]) }}" class="card-img-top" alt="">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ npc }}</h5>
+                            <p class="card-text">Description of {{ npc }}</p>
+                            <a href="{{ url_for('char_select', npc_name=npc) }}" class="btn btn-primary">Details</a>
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

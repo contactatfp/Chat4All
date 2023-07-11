@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, session
+import flask_login
 import os
 from werkzeug.utils import secure_filename
 import json
@@ -18,7 +19,53 @@ app.secret_key = os.urandom(24)
 def home():
     # query = "What should you do if a customer is angry?"
     # data_loader.ask_your_model(query)
-    return render_template('chat.html')
+    return render_template('base.html')
+
+
+@app.route('/login')
+def login():
+    # login user
+
+    return render_template('login.html')
+
+
+@app.route('/characters')
+def characters():
+    # list of each of the files in the static/persona directory. drop the .json extension and Make all uppercase.
+    # next list them all as a dictionary with the key being the uppercase name and the value being the path for the image
+    persona_files = os.listdir('static/persona')
+    persona_files = [file.split('.')[0].upper() for file in persona_files]
+
+    temp = {
+        'BUSINESS': 'img/business exec.png',
+        'SALES COACH OUTBOUND': 'img/sales_coach_npc.png',
+        'SALES COACH INBOUND': 'img/sales_coach_npc.png',
+        'TUTOR': 'img/tutor_npc.png',
+
+    }
+
+    return render_template('characters.html', npcs=persona_files, temp=temp)
+
+@app.route('/char_select/<npc_name>', methods=['GET'])
+def char_select(npc_name):
+    # Get the persona file for the selected character
+    persona = get_persona(npc_name.lower())
+
+    # Redirect to the chat route with the persona as a parameter
+    return redirect(url_for('chat', persona=persona))
+
+
+@app.route('/chat/<persona>', methods=['GET'])
+def chat(persona):
+    # Render the chat template with the persona
+    return render_template('chat.html', persona=persona)
+
+
+
+
+@app.route('/logout')
+def logout():
+    return render_template('logout.html')
 
 
 def get_persona(persona_type):
