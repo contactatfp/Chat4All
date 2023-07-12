@@ -223,4 +223,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 });
 
+//     window.onload = function() {
+//     var introMessage = "Hello, I am {{ bot_name }}. How can I help you?";
+//     var chatWindow = document.getElementById('chat-window');
+//     var messageNode = document.createElement("p");
+//     messageNode.textContent = introMessage;
+//     chatWindow.appendChild(messageNode);
+// }
 

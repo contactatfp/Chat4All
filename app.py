@@ -31,6 +31,7 @@ def login():
 
 @app.route('/characters')
 def characters():
+
     # list of each of the files in the static/persona directory. drop the .json extension and Make all uppercase.
     # next list them all as a dictionary with the key being the uppercase name and the value being the path for the image
     persona_files = os.listdir('static/persona')
@@ -38,11 +39,21 @@ def characters():
 
     temp = {
         'BUSINESS': 'img/business exec.png',
-        'SALES COACH OUTBOUND': 'img/sales_coach_npc.png',
-        'SALES COACH INBOUND': 'img/sales_coach_npc.png',
-        'TUTOR': 'img/tutor_npc.png',
+        'SALES COACH OUTBOUND': 'img/sales_coach_npc2.webp',
+        'SALES COACH INBOUND': 'img/sales_coach_npc3.png',
+        'TUTOR': 'img/tutor_npc2.png',
+        'BUSINESS2':  "Hello, I'm Market Maven! With my comprehensive knowledge of market analysis, I'm ready to provide you data-driven insights. Let's navigate the competitive landscape and uncover opportunities together!",
+        'SALES COACH OUTBOUND2': "Hi, I'm Sales Coach Sal! I specialize in enhancing sales communication and performance. By reviewing your previous emails and crafting impactful responses, I'll help you build stronger relationships with your clients. With me, every conversation becomes an opportunity to excel in your sales journey!",
+        'SALES COACH INBOUND2': "Greetings, I'm Sales Coach Sam! I bring a wealth of knowledge in sales strategies and client interaction. Allow me to guide you through your past emails and shape your future correspondences for maximum impact. Together, let's hit your sales targets!",
+        'TUTOR2': "Hello, I'm Tutor Tim! I excel in transforming complex lessons into easy-to-understand concepts. With your data and my expertise, I'll quiz you on past lessons and help you ace that upcoming test. Let's make learning engaging and effective!"
 
     }
+    # description =  {
+    #     'BUSINESS': business,
+    #     'SALES COACH OUTBOUND': 'img/sales_coach_npc2.webp',
+    #     'SALES COACH INBOUND': 'img/sales_coach_npc3.png',
+    #     'TUTOR': 'img/tutor_npc2.png',
+    # }
 
     return render_template('characters.html', npcs=persona_files, temp=temp)
 
@@ -58,8 +69,9 @@ def char_select(npc_name):
 @app.route('/chat/<persona>', methods=['GET'])
 def chat(persona):
     # Render the chat template with the persona
-    return render_template('chat.html', persona=persona)
-
+    print(persona)
+    message = f"Hello, how can I help you?"
+    return render_template('chat.html', persona=persona, intro_message=message)
 
 
 
@@ -132,7 +144,7 @@ def upload_file():
         return jsonify({'success': True})
 
 
-@app.route('/upload_folder', methods=['POST'])
+@app.route('/upload_folder', methods=['POST', 'GET'])
 def upload_folder():
     # get the "files" parameter from the request (this is how the files are sent from the JavaScript)
     files = request.files.getlist('file')
