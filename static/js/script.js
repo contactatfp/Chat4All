@@ -231,3 +231,35 @@ document.addEventListener('DOMContentLoaded', () => {
 //     chatWindow.appendChild(messageNode);
 // }
 
+// Assuming characters is an array imported from characters.js
+const characterContainer = document.getElementById('character-container');
+
+characters.forEach(character => {
+    const card = document.createElement('div');
+    card.className = 'character-card';
+
+    // Fill the card with details from the character object
+    // This will depend on the exact structure of your character objects
+
+    characterContainer.appendChild(card);
+});
+
+window.onload = function() {
+    fetch('/api/characters')
+        .then(response => response.json())
+        .then(data => {
+            const characterContainer = document.getElementById('character-container');
+
+            data.forEach(character => {
+                let characterDiv = document.createElement('div');
+                characterDiv.innerHTML = `
+        <h2>${character.name}</h2>
+        <p>${character.description}</p>
+      `;
+                characterContainer.appendChild(characterDiv);
+            });
+        })
+        .catch(error => {
+            console.log('Error:', error);
+        });
+};

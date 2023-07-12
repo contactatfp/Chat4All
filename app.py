@@ -1,48 +1,104 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, session
-import flask_login
+from flask_login import LoginManager, current_user, login_user, logout_user, login_required
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import os
 from werkzeug.utils import secure_filename
 import json
-
+from models import db, User, NPC
 import data_loader
 from conversation import Conversation
-from data_loader import ask_your_model, load_document
+from data_loader import load_document
+import forms
+from forms import LoginForm, RegistrationForm
+
+from langchain.prompts import PromptTemplate
+from langchain.prompts import load_prompt
+from langchain.chains import LLMChain
+from langchain.memory import ConversationBufferMemory
+from langchain.chains import ConversationalRetrievalChain
+from langchain.chat_models import ChatOpenAI
+from flask import session
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/text'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'doc', 'docx', 'xlsx', 'csv', 'eml'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = os.urandom(24)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+db.init_app(app)
+
+login_manager = LoginManager()
+login_manager.login_view = 'login'
+login_manager.init_app(app)
+
+migrate = Migrate(app, db)
+
+with open('config.json') as f:
+    config = json.load(f)
+
+memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+chat_history = []
+TEMPLATE = "tutor"
+
+def create_tables():
+    db.create_all()
 
 
 @app.route('/')
 def home():
     # query = "What should you do if a customer is angry?"
     # data_loader.ask_your_model(query)
-    return render_template('base.html')
+    create_tables()
+    return render_template('home.html')
 
 
-@app.route('/login')
-def login():
-    # login user
+# @app.route('/')
+# def index():
+#
+#     create_tables()
+#     return render_template('home.html')
 
-    return render_template('login.html')
 
+@app.route('/ask', methods=['POST'])
+def ask_your_model(query, persona_template):
+    from app import get_persona
+    # If persona_template is None, default to 'business'
+    if persona_template is None:
+        persona_template = get_persona('sales_coach_inbound')
+
+    prompt = PromptTemplate(
+        input_variables=['input'],
+        template=persona_template['template']
+    )
+    # chain = LLMChain(llm=llm, prompt=prompt)
+    # Run the chain only specifying the input variable.
+    # retriever = embedded_docs().as_retriever(search_kwargs={"k": 5})
+    # qa = RetrievalQA.from_llm(llm=OpenAI(), retriever=retriever)
+
+    qa = ConversationalRetrievalChain.from_llm(ChatOpenAI(temperature=0.5, model="gpt-3.5-turbo-16k", openai_api_key=config['openai_api_key']), data_loader.embedded_docs().as_retriever(), memory=memory)
+    # result = qa({"question": query, "chat_history": chat_history})
+    result = qa(prompt.format(input=query))
+
+
+    # print(result["answer"])
+    # print("******************************")
+    # print(chain.run(query))
+    # answer = chain.run(query)
+
+    return result['answer']
 
 @app.route('/characters')
 def characters():
-
-    # list of each of the files in the static/persona directory. drop the .json extension and Make all uppercase.
-    # next list them all as a dictionary with the key being the uppercase name and the value being the path for the image
     persona_files = os.listdir('static/persona')
     persona_files = [file.split('.')[0].upper() for file in persona_files]
 
     temp = {
         'BUSINESS': 'img/business exec.png',
-        'SALES COACH OUTBOUND': 'img/sales_coach_npc2.webp',
-        'SALES COACH INBOUND': 'img/sales_coach_npc3.png',
-        'TUTOR': 'img/tutor_npc2.png',
-        'BUSINESS2':  "Hello, I'm Market Maven! With my comprehensive knowledge of market analysis, I'm ready to provide you data-driven insights. Let's navigate the competitive landscape and uncover opportunities together!",
+        'SALES COACH OUTBOUND': 'img/sales_coach_npc3.png',
+        'SALES COACH INBOUND': 'img/sales_coach_npc4.png',
+        'TUTOR': 'img/tutor_npc3.png',
+        'BUSINESS2': "Hello, I'm Market Maven! With my comprehensive knowledge of market analysis, I'm ready to provide you data-driven insights. Let's navigate the competitive landscape and uncover opportunities together!",
         'SALES COACH OUTBOUND2': "Hi, I'm Sales Coach Sal! I specialize in enhancing sales communication and performance. By reviewing your previous emails and crafting impactful responses, I'll help you build stronger relationships with your clients. With me, every conversation becomes an opportunity to excel in your sales journey!",
         'SALES COACH INBOUND2': "Greetings, I'm Sales Coach Sam! I bring a wealth of knowledge in sales strategies and client interaction. Allow me to guide you through your past emails and shape your future correspondences for maximum impact. Together, let's hit your sales targets!",
         'TUTOR2': "Hello, I'm Tutor Tim! I excel in transforming complex lessons into easy-to-understand concepts. With your data and my expertise, I'll quiz you on past lessons and help you ace that upcoming test. Let's make learning engaging and effective!"
@@ -56,6 +112,7 @@ def characters():
     # }
 
     return render_template('characters.html', npcs=persona_files, temp=temp)
+
 
 @app.route('/char_select/<npc_name>', methods=['GET'])
 def char_select(npc_name):
@@ -74,10 +131,48 @@ def chat(persona):
     return render_template('chat.html', persona=persona, intro_message=message)
 
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    form = LoginForm()
+    # handle form submission...
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and user.check_password(form.password.data):
+
+            login_user(user)
+            return redirect(url_for('home'))
+        else:
+            flash('Invalid username/password combination')
+            return redirect(url_for('login'))
+    return render_template('login.html', form=form)
+
 
 @app.route('/logout')
 def logout():
-    return render_template('logout.html')
+    logout_user()
+    return redirect(url_for('home'))
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        new_user = User(email=form.email.data)
+        new_user.set_password(form.password.data)
+        db.session.add(new_user)
+        db.session.commit()
+        login_user(new_user)
+    # handle form submission...
+    return render_template('register.html', form=form)
+
+
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(int(id))
 
 
 def get_persona(persona_type):

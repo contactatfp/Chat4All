@@ -47,3 +47,72 @@ div.card-footer {
         background-position: -200% 0;
     }
 }
+
+#character-container {
+    display: flex;
+    overflow-x: scroll;
+    /* ...other styles to suit your design... */
+}
+
+.character-card {
+    flex: 0 0 auto;
+    margin-right: 16px;
+    /* ...other styles to suit your design... */
+}
+
+ body {
+     background: #000; /* Set a dark background */
+ }
+
+.navbar {
+    background: #000;
+    border-bottom: 2px solid #00f3ff;
+}
+
+.navbar-brand, .nav-link {
+    color: #00f3ff !important; /* Neon blue */
+    font-family: 'Press Start 2P', cursive; /* Arcade-like font */
+}
+
+.navbar-brand:hover, .nav-link:hover {
+    color: #00ffff !important; /* Brighter blue when hovered */
+}
+
+.card {
+    background: #000;
+    color: #fff;
+    /*border: 2px solid #00f3ff;*/
+    /*box-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff;*/
+}
+
+.card-title {
+    color: #00f3ff;
+    font-family: 'Press Start 2P', cursive;
+    text-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff, 0 0 30px #00f3ff, 0 0 40px #00f3ff;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+.btn-primary {
+    background: #000;
+    border: 2px solid #00f3ff;
+    color: #00f3ff;
+    text-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff;
+}
+
+.btn-primary:hover {
+    background: #00f3ff;
+    color: #000;
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff, 0 0 30px #00f3ff, 0 0 40px #00f3ff;
+    }
+    to {
+        text-shadow: 0 0 20px #00f3ff, 0 0 30px #00f3ff, 0 0 40px #00f3ff, 0 0 50px #00f3ff;
+    }
+}
+
+span.bg-light.px-1.p-1.rounded-pill {
+    color: black;
+}

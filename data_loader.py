@@ -23,7 +23,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from flask import session
-
+import forms
 
 
 with open('config.json') as f:
@@ -46,9 +46,7 @@ pinecone.init(
     environment=pinecone_environment,  # find at app.pinecone.io
 )
 
-memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-chat_history = []
-TEMPLATE = "tutor"
+
 
 
 def load_microsoft_word(path):
@@ -223,32 +221,7 @@ def embedded_docs():
 #     answer = qa.run(query)
 #     return answer
 
-def ask_your_model(query, persona_template):
-    from app import get_persona
-    # If persona_template is None, default to 'business'
-    if persona_template is None:
-        persona_template = get_persona('sales_coach_inbound')
 
-    prompt = PromptTemplate(
-        input_variables=['input'],
-        template=persona_template['template']
-    )
-    # chain = LLMChain(llm=llm, prompt=prompt)
-    # Run the chain only specifying the input variable.
-    # retriever = embedded_docs().as_retriever(search_kwargs={"k": 5})
-    # qa = RetrievalQA.from_llm(llm=OpenAI(), retriever=retriever)
-
-    qa = ConversationalRetrievalChain.from_llm(ChatOpenAI(temperature=0.5, model="gpt-3.5-turbo-16k", openai_api_key=config['openai_api_key']), embedded_docs().as_retriever(), memory=memory)
-    # result = qa({"question": query, "chat_history": chat_history})
-    result = qa(prompt.format(input=query))
-
-
-    # print(result["answer"])
-    # print("******************************")
-    # print(chain.run(query))
-    # answer = chain.run(query)
-
-    return result['answer']
     # return answer
 
 # loader = load_document("../static/text/01 Customer Gets Rid of Your Problem.txt")
