@@ -37,7 +37,6 @@ def create_app():
     return app
 
 
-
 app = create_app()
 # app.register_blueprint(pgen)
 
@@ -114,38 +113,18 @@ def api_docs():
     # print(chain.run(query))
     # answer = chain.run(query)
 
+
 from pgen import PersonaForm
-@app.route('/characters')
+
+
+@app.route('/characters', methods=['GET', 'POST'])
 def characters():
     persona_files = os.listdir('static/persona')
     persona_files = [file.split('.')[0].upper() for file in persona_files]
-
-    # Create an instance of the form
     persona_gen = PersonaForm()
+    npc_files = NPC.query.all()
 
-    temp = {
-        'BUSINESS': 'img/business exec2.png',
-        'SALES COACH OUTBOUND': 'img/sales_coach_npc3.png',
-        'SALES COACH INBOUND': 'img/sales_coach_npc7.png',
-        'TUTOR': 'img/tutor_npc5.png',
-        'BUSINESS2': "Hello, I'm Market Maven! With my comprehensive knowledge of market analysis, I'm ready to provide you data-driven insights. Let's navigate the competitive landscape and uncover opportunities together!",
-        'SALES COACH OUTBOUND2': "Hi, I'm Sales Coach Sal! I specialize in enhancing sales communication and performance. By reviewing your previous emails and crafting impactful responses, I'll help you build stronger relationships with your clients. With me, every conversation becomes an opportunity to excel in your sales journey!",
-        'SALES COACH INBOUND2': "Greetings, I'm Sales Coach Sam! I bring a wealth of knowledge in sales strategies and client interaction. Allow me to guide you through your past emails and shape your future correspondences for maximum impact. Together, let's hit your sales targets!",
-        'TUTOR2': "Hello, I'm Tutor Tim! I excel in transforming complex lessons into easy-to-understand concepts. With your data and my expertise, I'll quiz you on past lessons and help you ace that upcoming test. Let's make learning engaging and effective!"
-
-    }
-
-    # Now you have a list of NPC objects in `npcs`
-
-    # description =  {
-    #     'BUSINESS': business,
-    #     'SALES COACH OUTBOUND': 'img/sales_coach_npc2.webp',
-    #     'SALES COACH INBOUND': 'img/sales_coach_npc3.png',
-    #     'TUTOR': 'img/tutor_npc2.png',
-    # }
-
-
-    return render_template('characters.html', npcs=persona_files, temp=temp, persona_gen=persona_gen)
+    return render_template('characters.html', npcs=persona_files, persona_gen=persona_gen, npc_files=npc_files)
 
 
 @app.route('/char_select/<npc_name>', methods=['GET'])
@@ -202,6 +181,12 @@ def register():
         login_user(new_user)
     # handle form submission...
     return render_template('register.html', form=form)
+
+
+@app.route('/add_persona', methods=['GET', 'POST'])
+def add_persona():
+    form = PersonaForm()
+    return render_template('persona_form.html', form=form)
 
 
 @login_manager.user_loader

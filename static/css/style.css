@@ -99,9 +99,22 @@ div.card-footer {
     text-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff;
 }
 
+
 .btn-primary:hover {
     background: #00f3ff;
     color: #000;
+}
+
+a.btn.btn-secondary{
+    background: #00f3ff;
+    border: 2px solid #000;
+    color: #000;
+    text-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff;
+}
+
+a.btn.btn-secondary:hover {
+    background: #000;
+    color: #00f3ff;
 }
 
 @keyframes glow {
