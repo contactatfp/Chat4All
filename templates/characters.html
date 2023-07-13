@@ -12,13 +12,30 @@
                             <h5 class="card-title">{{ npc }}</h5>
                             <p class="card-text">{{ temp[npc+"2"] }}</p>
 
-                            <a href="{{ url_for('char_select', npc_name=npc) }}" class="btn btn-primary" style="align-content: center">Chat With Me</a>
-{#                            <a href="{{ url_for('upload_folder', file=npc) }}" class="btn btn-primary" style="float: right">Add Your Files</a>#}
+                            <a href="{{ url_for('char_select', npc_name=npc) }}" class="btn btn-primary" style="align-content: center; margin-left: 20px;">Chat</a>
+                            <a href="{{ url_for('api_docs') }}" class="btn btn-primary" style="float: right; margin-right: 20px;">APIs</a>
 
                         </div>
                     </div>
                 </div>
             {% endfor %}
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <img src="{{ url_for('static', filename="../static/img/tutor_npc7") }}" class="card-img-top" alt="">
+                    <div class="card-body">
+                        <h5 class="card-title">Create</h5>
+                        <p class="card-text">Create an NPC</p>
+                        <form method="POST" action="{{ url_for('pgen.persona_form') }}">
+                            {{ persona_gen.hidden_tag() }}
+                            {{ persona_gen.input_variables.label }} {{ persona_gen.input_variables() }}
+                            {{ persona_gen.template.label }} {{ persona_gen.template() }}
+                            {{ persona_gen.submit() }}
+                        </form>
+
+
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

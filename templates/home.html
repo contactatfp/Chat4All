@@ -1,4 +1,28 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
 {% block content %}
-    <div id="character-container"></div>
+    <div class="main-bg">
+    <div class="container mt-5" style="height: 1000px">
+        <div class="row">
+            <div class="col-12 text-center" style="margin-top: 4%">
+                <h1 class="card-title">Welcome to NPCs!</h1>
+                <p class="lead">Get ready to experience the future of work</p>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <a href="{{ url_for('login') }}" class="btn btn-primary">Log in</a>
+                <a href="{{ url_for('register') }}" class="btn btn-secondary">Register</a>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <p class="lead">Or, if you're a returning user...</p>
+                <a href="{{ url_for('characters') }}" class="btn btn-success">Go to NPCs</a>
+            </div>
+        </div>
+    </div>
+    </div>
 {% endblock %}

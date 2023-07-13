@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Persona Generator</title>
+</head>
+<body>
+<h1>Persona Generator</h1>
+<form method="POST">
+    {{ form.hidden_tag() }}
+
+    <p>
+        {{ form.input_variables.label }}<br>
+        {{ form.input_variables(size=32) }}<br><br>
+    </p>
+    <p>
+        {{ form.template.label }}<br>
+        {{ form.template(cols=32, rows=4) }}
+    </p>
+    <p>{{ form.submit() }}</p>
+</form>
+</body>
+</html>

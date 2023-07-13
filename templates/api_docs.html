@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container" style="color: #00f3ff">
+        <h1 class="my-4">API Documentation</h1>
+
+        <h2>Endpoint: /ask_your_model</h2>
+        <p>This endpoint accepts a POST request with the following parameters in the request body:</p>
+        <ul>
+            <li><strong>query</strong>: The query that you want to ask your model.</li>
+            <li><strong>persona_template</strong>: The name of the persona template to be used. If this is not provided, 'sales_coach_inbound' will be used as the default persona template.</li>
+        </ul>
+
+        <h3>Python example:</h3>
+        <pre><code class="language-python" style="color: #00f3ff">
+    import requests
+    import json
+
+    url = "http://localhost:5000/ask_your_model"
+
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "query": "What is the meaning of life?",
+        "persona_template": "sales_coach_inbound"
+    }
+
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+
+    if response.status_code == 200:
+        print("Response:", response.json())
+    else:
+        print("Error:", response.status_code, response.text)
+    </code></pre>
+    </div>
+{% endblock %}

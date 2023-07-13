@@ -116,3 +116,19 @@ div.card-footer {
 span.bg-light.px-1.p-1.rounded-pill {
     color: black;
 }
+
+.lead {
+    color: #00f3ff;
+}
+
+a.btn.btn-success {
+    background: #00f3ff;
+
+}
+
+.main-bg {
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('../../static/img/arcade_background1.png');
+    background-size: cover;
+    background-position: center;
+    margin-top: -4%;
+}
