@@ -6,6 +6,7 @@ import json
 from langchain.prompts import PromptTemplate
 from langchain import LLMChain, OpenAI
 from langchain.chat_models import ChatOpenAI
+from flask_login import login_required
 
 from models import db
 
@@ -34,32 +35,30 @@ def persona_form():
         prompt = PromptTemplate(
             input_variables=['input'],
             template="""
-            You are an AI model, a digital assistant tasked with crafting specialized responses based on the instructions provided by the user. Your objective is to interpret and translate user instructions into actions, producing tailored responses that align perfectly with the user's specified needs.
+            As an advanced AI model, you have a singular directive: to create prompts that will generate responses perfectly tailored to the user's specific needs. This directive applies regardless of the specific wording or structure of the user's instructions. Make sure to provide at least one example, input and response.
 
-The user has presented you with the following directive: {input}
-
-Your role, as an AI model, is to act according to this directive, delivering responses that strictly adhere to the guidelines outlined in the user's input. It's crucial to note that your responses should be limited to the requested action without deviating into unrelated or unsolicited commentary.
-
-For example, consider the following scenarios:
-
-Scenario 1
-
-Input: The user asks you to "Create an AI assistant that gives positive affirmations when prompted."
-
-Response: Your task is to develop AI prompts that consistently produce positive affirmations. As such, whenever prompted, you will analyze the input and craft suitable positive affirmations that align with the context and tone of the input.
-
-You might provide an affirmation like, "You are capable and strong. You can overcome any obstacles that stand in your way." The nature of the affirmation may vary depending on the context of the user's prompt.
-
-Scenario 2
-
-Input: The user instructs you to "Create an AI assistant to summarize long text passages."
-
-Response: In this case, your role is to process lengthy text passages provided by the user and generate concise, informative summaries. For example, the user might input a complex academic paper or a lengthy news article, and your task is to distill the key points into a brief summary that retains the essence of the original text.
-
-Remember, each user input is unique, and your responses should be tailored to address the specific request detailed in each instruction. As an AI model, your role is to interpret and execute these instructions with precision, aiding the user in their desired task.
+            The user will issue you a unique task in the form: {input}
+            
+            Your mission is to understand this task and boil it down to a persona. This persona will steer the conversation directly to the persona type.  Any extraneous commentary not directly related to the user's specified task should be avoided.
+            
+            Let's illustrate this with a couple of scenarios:
+            
+            Scenario 1
+            
+            User Input: "Provide positive affirmations when prompted."
+            
+            Your Response: You are now a positive affirmations bot. This means that for any given user input, your response will be to generate an appropriate positive affirmation. For example, if the user says "I need encouragement," your response might be "You are doing great. Keep pushing forward."
+            
+            Scenario 2
+            
+            User Input: "Summarize long text passages."
+            
+            Your Response: You are now a summarization bot that take long text inputs and generate concise, yet comprehensive summaries. For instance, if the user inputs a lengthy report, your response will be a clear and succinct summary of the main points of the report.
+            
+            It's crucial to remember that your primary role as an AI model is to interpret the user's task and generate AI prompts that accomplish this task as accurately and efficiently as possible. You are a bot that will create other bots. Please keep in mind that in the examples, you will only reponsd with the response text. The input text is only there to help you understand the task.
             """
         )
-        chat_llm = ChatOpenAI(model="gpt-3.5-turbo-16k", openai_api_key=config['openai_api_key'])
+        chat_llm = ChatOpenAI(temperature=0.3, model="gpt-3.5-turbo-16k", openai_api_key=config['openai_api_key'])
         chatgpt_chain = LLMChain(
             llm=chat_llm,
             prompt=prompt,
@@ -73,22 +72,23 @@ Remember, each user input is unique, and your responses should be tailored to ad
             "input_variables": ["input"],
             "template": output
         }
+        text = "I want you to write an intro as the new bot created here. I should start by saying Hi, I'm..."
         new_prompt = PromptTemplate(
             input_variables=[],
-            template=output
+            template=text+output
         )
         description_chain = LLMChain(
             llm=chat_llm,
             prompt=new_prompt,
             verbose=True
         )
-        output = description_chain.predict(input="Write an intro paragraph from the new bots perspective.")
+        output = description_chain.predict()
 
         # save the persona to file with the form.name.data as the filename, it will be a json file
         with open(f"static/persona/{form.name.data}.json", "w") as file:
             json.dump(persona, file)
 
-        npc = NPC(name=form.name.data, image="img/sales_coach_npc.png", description=output, user_id=current_user.id)
+        npc = NPC(name=form.name.data, image="img/sales_coach_npc.png", description=output)
 
         db.session.add(npc)
         db.session.commit()
