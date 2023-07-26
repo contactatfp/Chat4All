@@ -66,6 +66,45 @@ document.addEventListener('DOMContentLoaded', () => {
             chatWindow.appendChild(fileInputElem);
             scrollToBottom();
         }
+        if (command.startsWith('/youtube')) {
+            let youtubeLink = command.split(' ')[1]; // Get the youtube link if it's provided
+            if (youtubeLink) {
+                // Upload the youtube link to the server, similar to how you handle file and folder uploads
+                // Replace '/upload_youtube_link' with the correct server route for uploading youtube links: load_youtube(url)
+                fetch('/load_youtube', {
+                    method: 'POST',
+                    body: JSON.stringify({'url': youtubeLink}),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                }).then(() => {
+                    // Add a message to the chat window indicating the upload was successful
+                    let statusMessage = document.createElement("div");
+                    statusMessage.className = "p-2 mb-2 bg-light rounded";
+                    statusMessage.textContent = `DONE! YouTube link ${youtubeLink} successfully uploaded.`;
+                    chatWindow.appendChild(statusMessage);
+                });
+            } else {
+                // Send the '/youtube' command to the server
+                fetch('/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({'message': command, 'persona_template': currentPersona.template})
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Add the server's response to the chat window
+                        let serverMessageElem = document.createElement("div");
+                        serverMessageElem.className = "p-2 mb-2 rounded";
+                        serverMessageElem.innerHTML = `<span class="bg-light px-1 p-1 rounded-pill">${data.response}</span>`;
+                        chatWindow.appendChild(serverMessageElem);
+                        scrollToBottom();
+                    });
+            }
+        }
+
 
         if (command === '/folder') {
             let folderUploadElem = document.createElement("div");

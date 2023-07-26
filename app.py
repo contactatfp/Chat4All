@@ -224,19 +224,42 @@ def get_persona_endpoint():
     return jsonify({"persona": persona})
 
 
+import validators
+
+
+def validate_youtube_url(url):
+    return validators.url(url) and "youtube.com" in url
+
+
 @app.route('/send_message', methods=['POST'])
 def send_message():
     data = request.get_json()
     message = data.get('message')
     persona_template = data.get('persona_template')  # Get the persona_template from the request
 
-    if persona_template is None:  # Add this check
-        persona_template = session.get('persona', None)
-    # if persona_template is None:
-    #     get_persona('business')
-
-    response = ask_your_model(message, persona_template)  # Pass the persona_template to ask_your_model
-    return jsonify({'response': response})
+    if message.startswith("/youtube"):
+        url = message.replace("/youtube", "").strip()
+        if url:
+            if validate_youtube_url(url):
+                data_loader.load_youtube(url)
+                return jsonify({'response': f"YouTube video loaded from {url}"})
+            else:
+                return jsonify({'response': "Invalid YouTube URL. Please try again."})
+        else:
+            session["awaiting_youtube_url"] = True
+            return jsonify({'response': "Please provide a YouTube URL."})
+    elif session.get("awaiting_youtube_url"):
+        if validate_youtube_url(message):
+            data_loader.load_youtube(message)
+            session["awaiting_youtube_url"] = False
+            return jsonify({'response': f"YouTube video loaded from {message}"})
+        else:
+            return jsonify({'response': "Invalid YouTube URL. Please try again."})
+    else:
+        if persona_template is None:  # Add this check
+            persona_template = session.get('persona', None)
+        response = ask_your_model(message, persona_template)  # Pass the persona_template to ask_your_model
+        return jsonify({'response': response})
 
 
 def allowed_file(filename):

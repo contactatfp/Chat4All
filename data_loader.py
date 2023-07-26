@@ -24,6 +24,9 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from flask import session
 import forms
+from langchain.document_loaders import YoutubeLoader
+
+
 
 
 with open('config.json') as f:
@@ -49,6 +52,8 @@ pinecone.init(
 
 
 
+
+
 def load_microsoft_word(path):
     loader = Docx2txtLoader(path)
     pages = loader.load_and_split()
@@ -66,6 +71,18 @@ def load_images(path):
 
 def excel_loader(path):
     loader = UnstructuredExcelLoader(path, mode="elements")
+    pages = loader.load_and_split()
+    embed_new_docs(pages)
+    return pages
+
+
+def load_youtube(url):
+    loader = YoutubeLoader.from_youtube_url(
+        youtube_url=url,
+        add_video_info=True,
+        language=["en", "id"],
+        translation="en",
+    )
     pages = loader.load_and_split()
     embed_new_docs(pages)
     return pages
@@ -111,6 +128,7 @@ def load_txt(file_path):
     return pages
 
 
+
 # Import other loaders as needed
 
 def load_document(file_path):
@@ -137,7 +155,7 @@ def load_document(file_path):
         loader = directory_loader(file_path)
         for i in loader:
             data = embed_new_docs(loader)
-        print("test")
+
         return data
 
     else:
